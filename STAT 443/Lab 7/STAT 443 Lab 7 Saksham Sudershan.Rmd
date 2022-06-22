@@ -1,0 +1,63 @@
+---
+title: 'STAT 443: Lab 7'
+author: 'Saksham Sudershan (Student #31339427)'
+date: "09/03/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tseries)
+```
+
+\section*{Question 1}
+
+```{r, echo = TRUE}
+data <- read.csv("TempPG.csv")
+ts <- ts(data$Annual)
+model1 <- arima(ts, order = c(1,0,0), include.mean = T)
+model1
+```
+The fitted model would be:
+
+$$ X_t - (-1.9591) = 0.5843 ( X_{t-1} +1.9591) + Z_t \; \; \; \; \; \; \; \; \;  where\ Z_t \sim \mathbb{N}\,(0,1.265) $$
+
+\section*{Question 2}
+
+```{r, echo = T}
+acf(ts)
+```
+For an AR(1), we would expect the ACF to tail off exponentially or damped sinusoidally. However, here we see spikes at lags $h = 5, 10 \dots$ so this ACF graph differs from one of an AR(1) process.
+
+\section*{Question 3}
+
+```{r, echo = T}
+ts_differenced <- diff(ts, lag = 1, differences = 1)
+acf(ts_differenced, lag.max = 30)
+pacf(ts_differenced, lag.max = 30)
+```
+The ACF of the differenced series cuts of at lag $h=1$ and the PACF tails off in no particular pattern, which means that we could fit an MA(1) model to this differenced series.
+
+\section*{Question 4}
+
+```{r, echo = T}
+model2 <- arima(ts, order = c(0,1,1))
+model2
+```
+The fitted ARIMA model is given by:
+
+$$ X_t-X_{t-1} = Z_t -0.7504Z_{t-1} \; \; \; \; \; \; \; \; \;  where\ Z_t \sim \mathbb{N}\,(0,1.143) $$
+
+\section*{Question 5}
+
+```{r, echo = T}
+tsdiag(model2)
+```
+The model appears to fit well. There seems to be very little correlation between the residuals, which is what we would want from our model. The p-values for the Ljung-Box statistic also are high for lags before $h=7$, which suggests that the fits reasonably well. 
+
+\section*{Question 6}
+```{r, echo = T}
+model1$aic
+model2$aic
+```
+As we can see here, the AIC value for the ARIMA(0,1,1) model is lower than that for the AR(1) model. Thus, we would select the ARIMA(0,1,1) model.

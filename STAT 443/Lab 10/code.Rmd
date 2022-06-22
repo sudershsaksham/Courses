@@ -1,0 +1,113 @@
+---
+title: 'STAT 443: Lab 10'
+author: 'Saksham Sudershan (Student #31339427)'
+date: "28 March 2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\section*{Problem 1}
+  \subsection*{(a)}
+  
+```{r, echo = T}
+plot(1, type = 'l', xlim = c(0, pi), main = "Spectral Density Func. of White Noise", xlab = expression(omega), ylab = expression(paste("f(", omega, ")")))
+segments(x0=0, y0= 4/pi, x1=pi, y1 = 4/pi)
+```
+
+  \subsection*{(b)}
+```{r, echo = T}
+sim1 <- arima.sim(list(), n = 100, sd = sqrt(4))
+spc_obj1 <- spec.pgram(sim1, log="no", plot = F)
+plot((spc_obj1$freq*2*pi),spc_obj1$spec, type = "l", 
+     main = "Raw Periodogram", xlab = expression(omega), ylab = "Spectrum")
+segments(x0=0, y0= 4/pi, x1=pi, y1 = 4/pi, col = 2)
+legend("topright", legend = c("Periodogram", expression(paste("f("
+                            , omega,")"))), col = c(1,2), lty = c(1,1))
+```
+The periodogram appears to have a lot of fluctuations, compared to the spectral density function, which lies constant at $4/\pi$. However, it does seem that the mean of the periodogram lies close to the spectral density function.
+
+  \subsection*{(c)}
+```{r, echo = T}
+sim2 <- arima.sim(list(), n = 1000, sd = sqrt(4))
+spc_obj2 <- spec.pgram(sim2, log="no", plot = F)
+plot(spc_obj2$freq*2*pi, spc_obj2$spec, type = "l",
+     main = "Raw Periodogram", xlab = expression(omega), ylab = "Spectrum")
+segments(x0=0, y0= 4/pi, x1=pi, y1 = 4/pi, col = 2)
+legend("topright", legend = c("Periodogram", expression(paste("f(", omega,")"))), col = c(1,2), lty = c(1,1))
+```
+With $n=1000$, the periodogram seems to have even more fluctuations than when $n$ was $100$. There does not seem to be a specific pattern, but again, the mean seems to lie close to the spectral density function $pi/4$.
+
+  \subsection*{(d)}
+
+After repeating part (b) and part (c) multiple times, we can see that the periodogram is quite noisy as compared to the true spectrum which remains constant. While it is not a consistent estimator of the true spectrum, as sometimes the mean seems higher that $4/\pi$ and sometimes lower, on average it seems to be centered the true value of the spectral density function, which is $4/\pi$
+
+\section*{Problem 2}
+  \subsection*{(a)}
+```{r, echo = T}
+curve((1/pi)*(7.24-7.2*cos(x)), from = 0, to = pi, xlab 
+      = expression(omega), ylab = expression(paste("f(", omega, ")")),
+      main = "Spectral Density Func. of the MA(1) Process")
+```
+
+  \subsection*{(b)}
+```{r, echo = T}
+sim3 <- arima.sim(list(ma=(-0.9)), n = 100)
+spc_obj3 <- spec.pgram(sim3, log = "no", plot = F)
+plot(spc_obj3$freq*2*pi, spc_obj3$spec, type = "l", 
+     main = "Raw Periodogram", xlab = expression(omega), ylab = "Spectrum")
+curve((1/pi)*(7.24-7.2*cos(x)), from = 0, to = pi, add = T, col = 2) 
+legend("topleft", legend = c("Periodogram", expression(paste("f(", omega,")"))), col = c(1,2), lty = c(1,1))
+```
+The periodogram seems to fluctuate, and somewhat resembles the spectral density function, though it is not very accurate.
+
+  \subsection*{(c)}
+```{r, echo = T}
+sim4 <- arima.sim(list(ma=(-0.9)), n = 1000)
+spc_obj4 <- spec.pgram(sim4, log = "no", plot = F)
+plot(spc_obj4$freq*2*pi, spc_obj4$spec, type = "l", 
+     main = "Raw Periodogram", xlab = expression(omega), ylab = "Spectrum")
+curve((1/pi)*(7.24-7.2*cos(x)), from = 0, to = pi, add = T, col = 2) 
+legend("topleft", legend = c("Periodogram", expression(paste("f(", omega,")"))), col = c(1,2), lty = c(1,1))
+```
+The periodogram seems to fluctuate even more with $n=1000$. It resembles the spectral density function a little more as compared to the case when $n=100$, though again it is not very accurate. If we were to apply some smoothing to the periodogram, we would likely have something resembles the spectral density function.
+
+  \subsection*{(d)}
+After repeating parts (b) and (c) several times, we can see that in some cases the periodogram is a very good estimator of the true spectrum while in others it is not. The periodograms are very noisy compared to the true spectrum, and while not a consistent estimator, the periodogram does provide some idea of how the spectrum is dominated by high frequencies, like in the true spectrum.
+
+\section*{Problem 3}
+  \subsection*{(a)}
+```{r, echo = T}
+curve(2/(pi*(1-1.6*cos(x)+0.8^2)), from = 0, to = pi, xlab 
+      = expression(omega), ylab = expression(paste("f(", omega, ")")),
+      main = "Spectral Density Func. of the AR(1) Process")
+```
+
+  \subsection*{(b)}
+```{r, echo = T}
+sim5 <- arima.sim(list(ar=(0.8)), n = 100)
+spc_obj5 <- spec.pgram(sim5, log = "no", plot = F)
+plot(spc_obj5$freq*2*pi, spc_obj5$spec, type = "l", 
+     main = "Raw Periodogram", xlab = expression(omega), ylab = "Spectrum")
+curve(2/(pi*(1-1.6*cos(x)+0.8^2)), from = 0, to = pi, add = T,
+      col = 2) 
+legend("topright", legend = c("Periodogram", expression(paste("f(", omega,")"))), col = c(1,2), lty = c(1,1))
+```
+The periodogram seems to fluctuate, and somewhat resembles the spectral density function, though very accurately. 
+
+  \subsection*{(c)}
+```{r, echo = T}
+sim6 <- arima.sim(list(ar=(0.8)), n = 1000)
+spc_obj6 <- spec.pgram(sim6, log = "no", plot = F)
+plot(spc_obj6$freq*2*pi, spc_obj6$spec, type = "l", 
+     main = "Raw Periodogram", xlab = expression(omega), ylab = "Spectrum")
+curve(2/(pi*(1-1.6*cos(x)+0.8^2)), from = 0, to = pi, add = T,
+      col = 2) 
+legend("topright", legend = c("Periodogram", expression(paste("f(", omega,")"))), col = c(1,2), lty = c(1,1))
+```
+The periodogram seems to fluctuate even more with $n=1000$. It resembles the spectral density function a little more as compared to the case when $n=100$, though again it is not very accurate and sometimes the peaks are much higher compared to the true spectrum. If we were to apply some smoothing to the periodogram, we would likely have something resembles the spectral density function, thus being a decent estimate.
+
+  \subsection*{(d)}
+After repeating parts (b) and (c) several times, we can see that in some cases the periodogram is a very good estimator of the true spectrum while in others it is not. The periodograms are very noisy compared to the true spectrum, and while not a consistent estimator, the periodogram does provide some idea of how the spectrum is dominated by low frequencies, like in the true spectrum.

@@ -1,0 +1,99 @@
+---
+title: 'STAT 443: Lab 4'
+author: 'Saksham Sudershan (Student #31339427)'
+date: "07/02/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tseries)
+```
+
+## Question 1
+
+A time series is considered stationary when observing it at different periods of time wouldn't change its properties.
+
+For a process to be considered stationary, (1) the mean of the process has to be constant:
+
+$$ \textit{E}(X_t) = \mu \; \; \; \; \; \; \; \; \; for\ all\ t$$
+This means that there is no trend in the data.
+
+(2) The variance of the process also has to be finite.
+
+And (3) the autocovariance function only depends on the lag, and not at the time at which it is observed.
+
+## Question 2
+
+```{r, echo = TRUE}
+# Reading in data and converting to time series
+dat <- read.csv("lab4data.csv")
+time_series <- ts(dat$x)
+
+# Plotting
+plot(time_series, xlab = "Time", ylab = "Values", main = "Values of x Plotted Against Time")
+acf(time_series)
+```
+
+The time series seems to have an increasing trend thus it cannot be stationary. It also looks to have some seasonal or cyclical effects.
+
+The ACF also supports the idea that the time series is not stationary.
+
+## Question 3
+
+```{r, echo = TRUE}
+# Removing trend
+time_series_notrend <- diff(time_series, lag = 1, differences = 1)
+
+# Plotting
+plot(time_series_notrend, xlab = "Time", ylab = "Values (Differenced)", main = "Detrended Time Series")
+acf(time_series_notrend, lag.max = 30)
+```
+
+The time series as described by $y_t$ is de-trended but we cannot say for sure its stationary, as it still has seasonality.
+
+The ACF also shows the period of the seasonality, which is 8. The ACF has spikes at lags of 8, 16 and so on.
+
+## Question 4
+
+```{r, echo = TRUE}
+# Differencing again
+time_series_notrend_noseason <- diff(time_series_notrend, lag = 8, differences = 1) 
+
+# Plotting
+plot(time_series_notrend_noseason, xlab = "Time", ylab = "Values (Differenced Twice)", main = "Removing Seasonality from Time Series")
+acf(time_series_notrend_noseason)
+```
+
+The ACF plots supports that the time series after differencing again for seasonality, is stationary, and the plots also appears to be stationary.
+
+The plot does resemble that of white noise, and so does the ACF
+
+## Question 5
+
+The original data can be described by, 
+
+$$ (p,d,q) \times (P,D,Q)_s = (0,1,0)\times(0,1,0)_8$$
+
+## Question 6
+
+### (a)
+
+$$ W_t = Y_t - Y_{t-s} $$
+$$ W_t = (X_t-X_{t-1})-(X_{t-s}-X_{(t-s)-1)}) $$
+$$ W_t = X_t - X_{t-1} - X_{t-s}+X_{t-(s+1)}$$
+
+### (b)
+
+$$ We\ know\ that\ BX_t = X_{t-1}$$
+$$ Y_t = X_t - X_{t-1} $$
+$$ Y_t = X_t - BX_t = (1-B)X_t$$
+$$ W_t = Y_t - Y_{t-s} $$
+$$ W_t = (1-B)X_t - X_{t-s} + X_{t-(s+1)} $$
+
+### (c)
+
+$$ We\ know\ that\ B^sY_t = Y_{t-s} $$
+$$ W_t = (1-B)X_t - B^sX_{t} + B \cdot B^sX_{t} $$
+$$ W_t = (1-B)X_t - (1 - B) B^sX_{t}$$
+$$ W_t = (1-B)[X_t - B^sX_{t}] $$

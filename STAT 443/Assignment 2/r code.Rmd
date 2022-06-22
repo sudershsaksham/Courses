@@ -1,0 +1,203 @@
+---
+title: "STAT 443: Assignment 2"
+author: 'Saksham Sudershan (Student #31339427)'
+date: "05 February 2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tseries)
+```
+\section*{Problem 1}
+  \subsection*{(a)}
+  
+  Given AR(3) process:
+  
+  $$ X_t = \frac{2}{5}X_{t-1}+\frac{1}{4}X_{t-2}-\frac{1}{10}X_{t-3}+Z_t \; \; \; \; \; \; \{Z_t\}_{t \in \textit{N}}         \sim W N (0, \sigma^2)$$
+  The characteristic polynomial is given by:
+  
+  $$ 1- \frac{2}{5}B - \frac{1}{4}B^2 + \frac{1}{10}B^3 $$
+  
+  Equating the characteristic polynomial to find the roots, we get
+  
+  $$ B = -2, 2, 2.5 $$
+  
+  Since these roots are outside the unit circle in the complex plane, the AR(3) process is stationary.
+  
+  \subsection*{(b)}
+  
+  The AR(3) process is given by
+  $$ X_t = \frac{2}{5}X_{t-1}+\frac{1}{4}X_{t-2}-\frac{1}{10}X_{t-3}+Z_t \; \; \; \; \; \; \{Z_t\}_{t \in \textit{N}}         \sim W N (0, \sigma^2)$$
+  We already know that the AR(3) process is stationary.
+  Multiplying by $X_{t-k}$ for $k = 1,2,3$ we get,
+  
+  $$ X_tX_{t-1} = \frac{2}{5}X_{t-1}X_{t-1}+\frac{1}{4}X_{t-2}X_{t-1}-\frac{1}{10}X_{t-3}X_{t-1}+Z_tX_{t-1} $$
+  $$ X_tX_{t-2} = \frac{2}{5}X_{t-1}X_{t-2}+\frac{1}{4}X_{t-2}X_{t-2}-\frac{1}{10}X_{t-3}X_{t-2}+Z_tX_{t-2} $$
+  $$ X_tX_{t-3} = \frac{2}{5}X_{t-1}X_{t-3}+\frac{1}{4}X_{t-2}X_{t-3}-\frac{1}{10}X_{t-3}X_{t-3}+Z_tX_{t-3} $$
+  
+  Taking expectation on both sides and dividing by $\sigma_x^2$, we get
+  
+  $$ \rho(1) = \frac{2}{5}\rho(0) + \frac{1}{4}\rho(-1) - \frac{1}{10}\rho(-2) $$
+  $$ \rho(2) = \frac{2}{5}\rho(1) + \frac{1}{4}\rho(0) - \frac{1}{10}\rho(-1) $$
+  $$ \rho(3) = \frac{2}{5}\rho(2) + \frac{1}{4}\rho(1) - \frac{1}{10}\rho(0) $$
+  We know that $\rho(0) = 1$ and $\rho(-k)=\rho(k)$.
+  
+  So these equations become
+  $$ \rho(1) = \frac{2}{5} + \frac{1}{4}\rho(1) - \frac{1}{10}\rho(2) $$
+  $$ \rho(2) = \frac{2}{5}\rho(1) + \frac{1}{4} - \frac{1}{10}\rho(1) $$
+  $$ \rho(3) = \frac{2}{5}\rho(2) + \frac{1}{4}\rho(1) - \frac{1}{10} $$
+  Solving the system of equations, we get
+  
+  $$ \rho(1) \approx 0.48077,\rho(2) \approx 0.39423, \rho(3)\approx 0.17788 $$
+  Now, let
+  
+  $$ D^3 - \frac{2}{5}D^2 - \frac{1}{4}D^1 + \frac{1}{10}D^0  = 0 $$
+  Solving the above equation, we get
+  
+  $$ d_1 = \frac{1}{2}, \, d_2 = \frac{2}{5}, \, d_3 = \frac{-1}{2} $$
+  Now,
+  
+  $$ \rho(h) = A_1 d_1^{|h|} + A_2 d_2^{|h|} + A_3 d_3^{|h|} $$
+  $$ = A_1 \left( \frac{1}{2} \right)^{|h|} + A_2 \left( \frac{2}{5} \right)^{|h|} +A_3 \left( \frac{-1}{2} \right)^{|h|} $$
+  To find $A_1,A_2,$ and $A_3$,
+  $$ \rho(1) = A_1 \left( \frac{1}{2} \right)^{1} + A_2 \left( \frac{2}{5} \right)^{1} +A_3 \left( \frac{-1}{2} \right)^{1}$$
+  $$ \rho(2) =  A_1 \left( \frac{1}{2} \right)^{2} + A_2 \left( \frac{2}{5} \right)^{2} +A_3 \left( \frac{-1}{2} \right)^{2}$$
+  $$ \rho(3) =   A_1 \left( \frac{1}{2} \right)^{3} + A_2 \left( \frac{2}{5} \right)^{3} +A_3 \left( \frac{-1}{2} \right)^{3}$$
+  Solving the above system of equations, where $\rho(1) = 0.48077, \rho(2) = 0.39423$ and $\rho(3)=  0.17788$, we        get,
+
+  $$ A_1 \approx 2.42298, A_2 \approx -1.60243, A_3 \approx 0.179496$$
+  $$ \rho(h) = 2.42298\left(\frac{1}{2} \right) ^{|h|}-1.60243\left(\frac{2}{5} \right) ^{|h|}+0.179496\left(\frac{-1}{2} \right) ^{|h|}$$
+
+  \subsection*{(c)}
+  
+```{r, echo = TRUE}
+set.seed(123)
+sim_1 <- arima.sim(n = 2000, list(ar = c(2/5,1/4,-1/10)), sd = sqrt(1.96))
+theoretical_values <- c(0)
+for(i in 1:10){
+    theoretical_values[i] <- 2.42298*(1/2)^i-1.60243*(2/5)^i+0.179496*(-1/2)^i
+}
+acf(sim_1, lag.max = 10)
+lines(1:10, theoretical_values, type = "p", col = 4, pch = 4)
+legend("topright",legend=c("Sample Values","Theoretical Values"), lty=c(1, NA) ,pch = c(NA ,4),col=c(1,4))
+```
+
+\section*{Problem 2}
+
+  \subsection*{(a)}
+  
+  The ARMA process is given by:
+  
+  $$ X_t = \frac{7}{10}X_{t-1}+Z_t-\frac{1}{10}Z_{t-1} $$
+  SO,
+  
+  $$ \phi(B) = 1 - \frac{7}{10}B$$
+  
+  And
+  
+  $$ \theta(B) = 1 - \frac{1}{10}B $$
+  
+  Equating both the above equations to $0$, we can find the roots. Thus, when $\phi(B) = 0$, $B = \frac{10}{7}$ and when $\theta(B) = 0$, $B = 10$. 
+  
+  Since the roots for both equations lie outside the unit circle, the ARMA process is both stationary and invertible.
+  
+  \subsection*{(b)}
+  
+  $$ \psi(B) = \frac{\theta(B)}{\phi(B)} = \frac{1-\frac{1}{10}B}{1-\frac{7}{10}B}$$
+  
+  $$ \psi(B) = (1-.1B)(1-.7B)^{-1} $$
+  Now, 
+  $$ (1-.7B)^{-1}= \frac{1}{1-.7B} $$
+  This takes the form of a sum $(\frac{a}{1-r})$ of a geometric series which looks like $a + ar + ar^2 \dots$
+  
+  So, $a = 1$ and $r = .7B$ and the expanded geometric series is,
+  
+  $$ \frac{1}{1-.7B} = 1 + .7B + .49 B^2 + .343 B^3 \dots $$
+  So,
+  $$ \psi(B) = (1-.1B)(1+.7B+.49B^2+.343B^3 \dots)$$
+  $$ \psi(B) = (1+.7B+.49B^2+.343B^3 \dots)+(-0.1B-0.07B^2-0.049B^3 \dots) $$
+  $$ \psi(B) = 1 + 0.6B + 0.42B^2 + 0.294B^3 \dots $$
+  where,
+  $$ \psi_{i} = 0.6 \times 0.7^{i-1} \; \; \; \; \; \; \;  for\ i=1,2,\dots $$
+  So, the pure MA process is
+  
+  $$ X_t = Z_t + 0.6 Z_{t-1} + 0.42 Z_{t-2} + 0.294 Z_{t-3} + \dots$$
+  
+  \subsection*{(c)}
+  
+  $$ \pi(B) = \frac{\phi(B)}{\theta(B)} = \frac{1-\frac{7}{10}B}{1-\frac{1}{10}B}$$
+  
+  $$ \pi(B) = (1-.7B)(1-.1B)^{-1} $$
+  Now, 
+  $$ (1-.1B)^{-1}= \frac{1}{1-.1B} $$
+  This takes the form of a sum $(\frac{a}{1-r})$ of a geometric series which looks like $a + ar + ar^2 \dots$
+  
+  So, $a = 1$ and $r = .1B$ and the expanded geometric series is,
+  
+  $$ \frac{1}{1-.1B} = 1 + .1B + .01 B^2 + .001 B^3 \dots $$
+  So,
+  $$ \pi(B) = (1-.7B)(1+.1B+.01B^2+.001B^3 \dots)$$
+  $$ \psi(B) = (1+.1B+.01B^2+.001B^3 \dots)+(-0.7B-0.07B^2-0.007B^3 \dots) $$
+  $$ \psi(B) = 1 - 0.6B - 0.06B^2 - 0.006B^3 \dots $$
+  $$ \pi_{i} = 0.6 \times 0.1^{i-1} \; \; \; \; \; \; \;  for\ i=1,2,\dots $$
+  So the pure AR process is,
+  
+  $$ X_t = 0.6 X_{t-1} + 0.06 X_{t-2} + 0.006 X_{t-3} + \dots + Z_t$$
+
+  \subsection*{(d)}
+  
+  We know that the ARMA(1,1) process can also be written as an MA process given by:
+  
+  $$ X_t = Z_t + 0.6 Z_{t-1} + 0.42 Z_{t-2} + 0.294 Z_{t-3} + \dots $$
+  We know that the ACF function for lag $h$ for an MA process is given by,
+  $$ \rho(h) = \frac{\sum_{i=0}^{\infty} \beta_i \beta_{i+h}}{\sum_{i=0}^{\infty} \beta_i^2} $$ 
+  
+  This can also be written as,
+  $$  \rho(h) = \frac{\beta_0 \beta_h +  \sum_{i=1}^{\infty} \beta_i \beta_{i+h}}{\beta_0^2 + \sum_{i=1}^{\infty} \beta_i^2} $$
+  We also know that our $\beta_1, \beta_2  \dots$ take the form of a geometric series given by,
+  
+  $$ \beta_n = a \cdot r^{n-1} \; \; \; \; \; \; \; \; \; \; \; \; \; n \in [1,\infty)$$
+  where $a=0.6$ and $r=0.7$
+  
+  We know that $\beta_0=1$, so we can write the ACF function as,
+  $$ \rho(h) = \frac{1 \cdot \beta_h +  \sum_{i=1}^{\infty} \beta_i \beta_{i+h}}{1 + \sum_{i=1}^{\infty} \beta_i^2} $$
+  
+  $$ \implies \rho(h) = \frac{1 \cdot 0.6 \cdot 0.7^{h-1} +  \sum_{i=1}^{\infty} 0.6 \cdot 0.7^{i-1} \times 0.6 \cdot 0.7^{i+h-1}}{1 + \sum_{i=1}^{\infty} \left( 0.6\cdot 0.7^{i-1} \right)^2} $$
+  $$ \implies \rho(h) = \frac{0.6 \cdot 0.7^{h-1} +  0.36\cdot 0.7^h\sum_{i=1}^{\infty} 0.7^{2i-2}}{1 + 0.36 \sum_{i=1}^{\infty}   0.7^{2i-2}} $$
+  
+  Now, $\sum_{i=1}^{\infty}   0.7^{2i-2}$ converges to $1.96078$
+  So, we can see that the ACF then becomes,
+  
+  $$ \rho(h) = \frac{0.6 \cdot 0.7^{h} \cdot 0.7^{-1} +  0.36\cdot 1.96078\cdot 0.7^h}{1 + 0.36\cdot 1.96078 }$$
+  $$ \implies \rho(h) \approx \frac{0.857 \cdot 0.7^{h} +  0.706 \cdot 0.7^h}{1.706 }$$
+  $$ \implies \rho(h) \approx \frac{1.563}{1.706} \cdot 0.7^h $$
+    $$ \implies \rho(h) \approx 0.916 \cdot 0.7^h \; \; \; \; \; for\ h \in [1,\infty) $$
+    $$ \rho(h) = 1 \; \; \; \; \; for\ h=0 $$
+    $$ and\ \rho(h) = \rho(-h) \; \; \; \; \; for\ h \in (-\infty, 0) $$
+  
+\section*{Problem 3}
+  The SARIMA process is of order $(2,1,0) \times (0,1,2)_{12}$
+  
+  Now,
+  $$ W_t = \nabla^1 \nabla^1_{12} X_t $$
+  $$ W_t = \nabla^1_{12} X_t - \nabla^1_{12} X_{t-1}$$
+  $$ W_t = \left( X_t - X_{t-12} \right) - \left( X_{t-1} - X_{t-1-12} \right) $$
+  $$ W_t = X_t - X_{t-12} - X_{t-1} + X_{t-13} $$
+  
+  The form that the SARIMA process takes is:
+  
+  $$ \phi(B) \Phi (B^s) W_t = \theta (B) \Theta (B^s) Z_t $$
+  $$ \left( 1- \phi_1(B) - \phi_2(B^2) \right) W_t = \left( 1 + \Theta_1(B) + \Theta_2(B^2) \right) Z_t $$
+  $$ \left( 1 - \phi_1 (B) - \phi_2(B^2) \right) \left( X_t - X_{t-1} - X_{t-12} + X_{t-13} \right) = \left( 1 + \Theta_1(B) + \Theta_2(B^2) \right) Z_t $$
+  
+  So the left hand side of the equation becomes
+  
+  $$ X_t - \phi_1X_{t-1} - \phi_2X_{t-2} - X_{t-1} + \phi_1X_{t-2} + \phi_2X_{t-3} - X_{t-12} + \phi_1X_{t-13} + \phi_2X_{t-14} + X_{t-13} - \phi_1X_{t-14} - \phi_2X_{t-15} $$
+  $$ X_t - (\phi_1+1)X_{t-1} - (\phi_2 - \phi_1)X_{t-2} - (-\phi_2X_{t-3}) - X_{t-12} - (-\phi_1-1)X_{t-13} -(-\phi_2 + \phi_1)X_{t-14} - \phi_2X_{t-15} $$
+  
+  And the right hand side is,
+  
+  $$ Z_t + \Theta_1Z_{t-12}+\Theta_2Z_{t-24} $$
+  
+  Thus, the ARMA process is of the order $ARMA(15,24)$.

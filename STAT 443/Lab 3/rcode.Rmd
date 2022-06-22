@@ -1,0 +1,142 @@
+---
+title: "Lab 3"
+author: 'Saksham Sudershan (Student #31339427)'
+date: "03 February, 2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tseries)
+```
+
+## Question 1
+
+### (a)
+
+```{r, echo = TRUE}
+# Generating data
+sim <- arima.sim(n = 500, list(ma = c(-4.25, 5.75, -1.80)), sd = sqrt(0.2) )
+
+# Plotting
+plot(sim, ylab = "Observations", main = "Generated MA Data")
+```
+For $h = 0, 1, ..., q$, the autocorrelation function is given by,
+
+$$\rho (h) = \frac{\sum\limits_{i=0}^{q-h} \beta_i \beta_{i+h}}{\sum\limits_{i=0}^{q} \beta_i^{2}} $$
+
+where $q=3$
+
+So the expected ACFs are:
+
+$$ For\ h= 0, \; \rho(0)= 1$$
+
+
+$$For\ h=1, \rho(1) = \frac{(1)\cdot(-4.25)+(-4.25)\cdot(5.75)+(5.75)\cdot(-1.80)}{1^2+(-4.25)^2+(5.75)^2+(-1.80)^2}$$
+$$ = \frac{-39.0375}{55.365} \approx -0.7051 $$
+
+
+$$For\ h=2, \rho(2) = \frac{(1)\cdot(5.75)+(-4.25)\cdot(-1.80)}{1^2+(-4.25)^2+(5.75)^2+(-1.80)^2} $$
+$$ = \frac{13.4}{55.365} \approx 0.2420 $$
+
+
+$$For\ h=3, \rho(3) = \frac{(1)\cdot(-1.80)}{1^2+(-4.25)^2+(5.75)^2+(-1.80)^2} $$
+$$ = \frac{-1.80}{55.365} \approx -0.0325 $$
+
+
+
+For $h>q$, the ACF will "cut off" or be equal to 0. 
+
+
+### (b)
+
+```{r, echo=TRUE}
+# Plotting ACF
+acf(sim, lag.max = 50)
+```
+The sample ACF resembles our expected values for the lags $h=0,1,2,3$ however, we would expect the ACF values to be 0 at lags greater 3, which seems to be the case except for a few outliers. Most of the ACF values for lags greater than 3 fall within the confidence limits, and are insignificant.
+Upon repeating, we can see that the values for lags $h=0,1,2,3$ remain almost the same, however the other ACFs seem to change in no particular pattern.
+
+### (c)
+
+```{r, echo = TRUE}
+# Plotting theoretical values using ARMAacf function
+lags = 0:4
+plot(lags, ARMAacf(ma = c(-4.25, 5.75, -1.80)), type = "b", 
+     xlab = "Lag", ylab = "ACF", main = "Theoretical ACFs for MA process")
+abline(h=0, lty = 2)
+```
+
+### (d)
+
+The ACF values here match with our expected values, and at lags greater than 3 do equal 0 which is what we would expect, in contrast to our simulated data ACF, which only slowly decays to a value of 0 and at much larger lags.
+
+## Question 2
+
+### (a)
+
+```{r, echo = TRUE}
+# Generating MA series for beta = 5 and plotting
+sim_beta_5 <- arima.sim(n = 1000, list(ma = c(5)), sd = sqrt(0.9) )
+acf(sim_beta_5)
+```
+The ACF for lags $h=0,1$ seem to be significant, followed by mostly insignificant ACFs which fall within the confidence limits, showing rapid decay.
+
+### (b)
+
+```{r, echo = TRUE}
+# Generating MA series with beta = 0.2 and plotting
+sim_beta_dot2 <- arima.sim(n = 1000, list(ma = c(0.2)), sd = sqrt(0.9) )
+acf(sim_beta_dot2)
+```
+The ACF for lags $h=0,1$ seem to be significant, followed by mostly insignificant ACFs which fall within the confidence limits. This ACF plot is almost the same to that in part (a), and the difference could be simply due to sampling. 
+
+### (c)
+
+We can end up with the same plots, and this highlights the point that MA processes are not unique and that both the MA processes give us the same ACF. For this reason, it is important to impose invertibility on MA processes allowing them to be uniquely specified by their ACF. In our case, only the MA with $\beta = 0.2$ is invertible.
+
+## Question 3
+
+### (a)
+
+```{r, echo=TRUE}
+#Generating AR series with alpha = 0.3
+sim_alpha_dot3 <- arima.sim(n = 1000, list(ar = c(0.3)), sd = 0.2)
+
+# Plotting time series and ACF
+plot(sim_alpha_dot3, ylab = "Observations", 
+     main = expression(paste("Simulated AR Data For ", alpha, "= 3")))
+acf(sim_alpha_dot3, lag.max = 100)
+```
+The ACF decays quickly, which indicates weak temporal dependence. 
+
+### (b)
+
+```{r, echo = TRUE}
+# Generating AR series with alpha = 0.6
+sim_alpha_dot6 <- arima.sim(n = 1000, list(ar = c(0.6)), sd = 0.2)
+
+# Generating AR series with alpha = 0.99
+sim_alpha_dot99 <- arima.sim(n = 1000, list(ar = c(0.99)), sd = 0.2)
+
+# Plotting
+acf(sim_alpha_dot6, lag.max = 100)
+acf(sim_alpha_dot99, lag.max = 1000)
+```
+As $\alpha$  approaches 1, the ACF decays much slower which indicates strong long-term dependence. As can be seen when $\alpha = 0.6$, and even slower when $\alpha = 0.99$. It also acts as a mixture of dampened exponentials and sinusoids until it decays out.
+
+### (c)
+
+```{r, echo = TRUE}
+# Generating AR series with alpha = -0.3
+sim_alpha_neg3 <- arima.sim(n = 1000, list(ar = c(-0.3)), sd = 0.2)
+
+# Plotting
+acf(sim_alpha_neg3)
+```
+With a negative sign of $\alpha$, the ACF oscillates or alternates between positive and negative correlations with each lag till it decays out. This can be seen more clearly with a higher value of $|\alpha|$.
+
+```{r, echo = TRUE}
+# Plotting for more negative value
+sim_alpha_neg99 <- arima.sim(n = 1000, list(ar = c(-0.99)), sd = 0.2)
+acf(sim_alpha_neg99)

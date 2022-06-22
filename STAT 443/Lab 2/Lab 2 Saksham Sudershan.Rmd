@@ -1,0 +1,85 @@
+---
+title: 'STAT 443: Lab 2'
+author: 'Saksham Sudershan (Student #31339427)'
+date: "24 January, 2022"
+output: 
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(tseries)
+library(zoo)
+```
+
+### Question 1
+
+(a)
+
+```{r, echo=TRUE}
+# Reading the data
+data1 <- read.csv('dataTempPG.csv')
+
+# Making time series object
+data1.ts <- ts(data1$Annual, start = c(1919), frequency = 1)
+
+# Plotting
+plot(data1.ts, xlab = "Time", ylab= "Annual Mean Temperatures", main = "Annual
+Mean Minimum Temperatures at Prince George, BC")
+```
+
+The graph shows an upward trend, with no discernible seasonality.
+
+(b)
+
+```{r, echo=TRUE}
+# Plotting acf function
+data1.tsgrph <- acf(data1.ts, plot = F)
+plot(data1.tsgrph, xlab = "Lag", ylab = "ACF", main = "ACF Graph")
+```
+The ACF graph shows decay from lags 1-4, and then a high value at lag = 5. This means that each value is correlated to its previous value decaying with each lag. Then there is a high correlation between values 5 years apart, which might suggest some sort of seasonality with period 5, however this is not easily discernible from the plot.
+
+(c)
+
+```{r, echo=TRUE}
+# Extracting time series between years 1968 and 2008
+data1.ts1 <- window(data1.ts, start = c(1968), end = c(2008))
+
+# Plotting with rolling average and legend
+plot(data1.ts1, xlab = "Time", ylab= "Annual Mean Temperatures", main = "Annual
+Mean Minimum Temperatures at Prince George, BC")
+lines(rollmean(data1.ts1, 5), col = 2)
+legend("topleft",legend=c("Annual temperature","5-Year Rolling Mean"), lty=1,col=c(1,2))
+```
+
+### Question 2
+
+```{r, echo=TRUE}
+# Reading data and making time series object
+data2 <- read.csv("LakeLevels.csv")
+data2.ts <- ts(data2$LakeLevel, start = c(2007, 1), frequency = 365)
+```
+
+(a)
+
+```{r, echo=TRUE}
+# Making acf with daily lags
+acf.est <- acf(data2.ts, lag.max = 500, plot = F)
+acf.est$lag <- acf.est$lag * 365
+plot(acf.est, main = "ACF Graph")
+```
+The ACF graph shows decaying correlation with each increase in lag. So each data value is less and less correlated with previous value as the lag increases.
+
+(b)
+
+```{r, echo= TRUE}
+# Plotting using additive seasonal decomposition model
+plot(decompose(data2.ts, type = "additive"))
+```
+
+(c)
+```{r, echo= TRUE}
+# Plotting using Loess smoothing decomposition
+plot(stl(data2.ts, s.window = "periodic"), main = "Decomposition Using Loess")
+```

@@ -1,0 +1,53 @@
+---
+title: 'STAT 443: Lab 5'
+author: 'Saksham Sudershan (Student #31339427)'
+date: "14 February, 2022"
+output: pdf_document
+---
+## Question 1
+
+The process defined in the equation is an AR process of order 3.
+
+## Question 2
+
+To recognize this process based on an observed time series, we can look at the ACF and PACF of the data. If it is an AR process, the ACF will resemble a dampened sine wave. To determine the order of the AR process, we can look at the generated PACF, which will cut off at lag 3.
+
+## Question 3
+
+```{r, echo = TRUE}
+set.seed(123456)
+sim_data <- arima.sim(n = 500, list(ar = c(0.8, (-.3333), 0.6/sqrt(3))), sd = sqrt(0.8))
+plot(sim_data, xlab = "Time", ylab = "Values", main = "Time Series Plot")
+abline(h = mean(sim_data), col = c("red"), lty = 2)
+abline(h = 0, lty= 2)
+legend("topleft",legend=c("Mean of Series","y=0"), lty=c(2,2) ,col=c("red",1))
+```
+
+## Question 4
+
+```{r, echo = TRUE}
+acf(sim_data, lag.max = 200)
+```
+The ACF resembles a dampened sinusoidal wave, which is exactly what we would expect given the equation.
+
+## Question 5
+
+```{r, echo = TRUE}
+pacf(sim_data, lag.max = 20)
+```
+The PACF is non-significant at lags after 3, which means it cuts off at lag 3. This is what we would expect given the process defined by equation (1).
+
+## Question 6
+
+```{r, echo = TRUE}
+arima(sim_data, order = c(3, 0, 0), include.mean = F)
+```
+We know that the series arises from a 0 mean, and so we should not include a mean in the fitting.
+
+## Question 7
+
+```{r, echo = TRUE}
+arima(sim_data, order = c(3, 0, 0), include.mean = F, method = c("CSS"))
+```
+
+The coefficient values here using the conditional sum-of-squares method are a little lower than the values obtained with the default method. We are not including a mean here as well as we know the series arises from a 0 mean.

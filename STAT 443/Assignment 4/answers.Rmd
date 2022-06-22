@@ -1,0 +1,189 @@
+---
+title: 'STAT 443: Assignment 3'
+author: 'Saksham Sudershan (Student #31339427)'
+date: "02 April 2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+\section*{Problem 1}
+\subsection*{(a)}
+We know that,
+$$ X_t = Z_t +0.7 Z_{t-1}+0.2Z_{t-2}-0.1Z_{t-1} \; \; \; \; \; \; \; \; \; \; \; \; \; \; where\ Z_t \sim WN(0,1)$$
+Now,
+$$  \gamma (0)  = \sigma^2_{Z} \left[ \sum_{i=0}^{3} \beta_i^2 \right] $$
+$$ = 1 \times [1^2 + 0.7^2+0.2^2+0.1^2] $$ 
+$$ = 1 \times [1+0.49+0.04+0.01] $$
+$$ = 1 \times [1.54] $$
+$$ = 1.54 $$
+
+$$  \gamma (1) = \sigma^2_{Z} \left[ \sum_{i=0}^{2} \beta_i \beta_{i+1} \right] $$
+$$ = 1 \times [1 \cdot 0.7 + 0.7 \cdot 0.2 - 0.2 \cdot 0.1 ] $$ 
+$$ = 1 \times [0.7+0.14-0.02] $$
+$$ = 1 \times [0.82] $$
+$$ = 0.82 $$
+
+$$  \gamma (2) = \sigma^2_{Z} \left[ \sum_{i=0}^{1} \beta_i \beta_{i+2} \right] $$
+$$ = 1 \times [1 \cdot 0.2 - 0.7 \cdot 0.1  ] $$ 
+$$ = 1 \times [0.2-0.07] $$
+$$ = 1 \times [0.13] $$
+$$ = 0.13 $$
+
+$$  \gamma (3)  = \sigma^2_{Z} \left[ \sum_{i=0}^{0} \beta_i \beta_{i+3} \right] $$
+$$ = 1 \times [- 1 \cdot 0.1  ] $$ 
+$$ = 1 \times [-0.1] $$
+$$ = -0.1 $$
+
+$$ For\ k>3, \; \; \; \gamma (k) = 0 $$
+
+So now, the spectral density function is given by,
+$$  f(\omega) = \frac{1}{\pi} \left\{ \gamma (0) + 2 \times \sum_{k=1}^{\infty} \gamma (k) \cos(k\omega ) \right\} $$
+$$ = \frac{1}{\pi} \left\{ 1.54 + 2 \left[ \gamma(1)\cos(\omega) + \gamma(2)\cos(2\omega) + \gamma(3)\cos(3\omega )\right] \right\} $$
+$$ = \frac{1}{\pi} \left\{1.54+2\left[0.82\cos(\omega)+0.13\cos(2\omega)-0.1\cos(3\omega) \right] \right\} $$
+$$ = \frac{1}{\pi} \left\{1.54+ 1.64\cos(\omega)+0.26\cos(2\omega)-0.2\cos(3\omega) \right\} $$
+$$ = \frac{1.54+ 1.64\cos(\omega)+0.26\cos(2\omega)-0.2\cos(3\omega)}{\pi} $$
+
+\subsection*{(b)}
+The normalized spectral density function $f^*(\omega)$ is given by,
+$$  f^*(\omega) = \frac{f(\omega)}{\sigma_X^2} = \frac{f(\omega)}{1.54} $$
+$$ = \frac{\frac{1.54}{1.54}+ \frac{1.64}{1.54} \cos(\omega) + \frac{0.26}{1.54}\cos(2\omega) - \frac{0.2}{1.54} \cos(3\omega)}{\pi} $$
+$$ =\frac{1 + 1.0649 \cos(\omega) + 0.1688 \cos(2\omega) - 0.13 \cos(3\omega)}{\pi} $$
+  
+\subsection*{(c)}
+```{r, echo = T}
+curve((1+(1.0649*cos(x))+(0.1688*cos(2*x))-(0.130*cos(3*x)))*(1/pi) , from = 0, to = pi, xlab = "Range", ylab = "Spectral Densities", main = "Spectral Density Function")
+```
+The graph of the Spectral Density Function shows that it is dominated by low frequencies. It is mostly a decreasing function till about 2.4, after which it starts increasing.
+
+\section*{Problem 2}
+\subsection*{(a)}
+We know that the spectral density functions for $\{X_t\}_{t \in Z}$ and $\{Y_t\}_{t \in Z}$ are $f_X(\omega)$ and $f_Y(\omega)$, respectively. We also know that these are independent, and that the process $\{W_t\}_{t \in Z}$ is given by $W_t = X_t + Y_t$.
+
+The spectral density function for $\{W_t\}_{t \in Z}$ is given by,
+$$ f_W (\omega) = \frac{1}{\pi} \left[  \gamma_W(0)+2 \sum_{k=1}^\infty \gamma_W(k) cos(k\omega) \right] $$
+Or,
+$$ f_W (\omega) = \frac{1}{\pi} \left[  Var(W_t)+2 \sum_{k=1}^\infty Cov(W_{t+k}, W_t) \times cos(k\omega) \right] $$
+Now,
+$$ Var(W_t) = Var(X_t+Y_t) $$
+$$ = Var(X_t)+Var(Y_t)+Cov(X_t,Y_t) $$
+$$ = Var(X_t)+Var(Y_t) \; \; \; \; since\ X\ and\ Y\ are\ independent\ $$
+And,
+$$ Cov(W_{t+k}, W_t) = Cov(X_{t+k}+Y_{t+k},X_t+Y_t) $$
+$$ = Cov(X_{t+k},X_t)+Cov(X_{t+k},Y_t)+Cov(Y_{t+k},X_t)+Cov(Y_{t+k},Y_t) $$
+$$  = Cov(X_{t+k},X_t)+0+0+Cov(Y_{t+k},Y_t) $$
+$$ = Cov(X_{t+k},X_t)+Cov(Y_{t+k},Y_t) $$
+Putting this together for spectral density function of $\{W_t\}_{t \in Z}$,
+$$ f_W (\omega) = \frac{1}{\pi} \left[  Var(X_t)+Var(Y_t)+2 \sum_{k=1}^\infty [Cov(X_{t+k}, X_t)+Cov(Y_{t+k}, Y_t)] \times cos(k\omega) \right] $$
+$$ \Rightarrow f_W (\omega) = \frac{1}{\pi} \left[  Var(X_t)+2 \sum_{k=1}^\infty Cov(X_{t+k}, X_t) \times cos(k\omega) +Var(Y_t) +\sum_{k=1}^\infty Cov(Y_{t+k}, Y_t)\times cos(k\omega) \right] $$
+$$ \Rightarrow f_W (\omega) = \frac{1}{\pi} \left[  Var(X_t)+2 \sum_{k=1}^\infty Cov(X_{t+k}, X_t) \times cos(k\omega) \right]+\frac{1}{\pi} \left[ Var(Y_t) +\sum_{k=1}^\infty Cov(Y_{t+k}, Y_t)\times cos(k\omega) \right] $$
+$$ \Rightarrow f_W (\omega) = f_X (\omega) +f_Y (\omega) $$
+\subsection*{(b)}
+$$ X_t = -0.5 X_{t-1} + Z_t $$
+
+$$ \Rightarrow (1+0.5B)X_t = Z_t $$
+$$ \Rightarrow X_t = \frac{1}{1+0.5B} Z_t $$
+$$ \Rightarrow X_t = Z_t [1-0.5B+0.25B^2\dots] = Z_t - 0.5Z_{t-1}+0.25Z_{t-2} \dots $$
+Since $Z_t$ and $Y_t$ are independent, $X_t = \frac{1}{1+0.5B} Z_t$ and $Y_t$ must be independent.
+
+Now,
+$$ \gamma_Y (0) = \sigma^2 \ and\ \gamma_Y (k) = 0 \ for\ k>0 $$
+The spectral density function for $Y_t$ is given by,
+$$ f_Y(\omega) = \frac{1}{\pi} \left[  \gamma_Y(0)+2 \sum_{k=1}^\infty \gamma_Y(k) cos(k\omega) \right] $$
+$$ \Rightarrow f_Y(\omega) = \frac{\sigma^2}{\pi} $$
+And,
+$$ \gamma_X(k) = \sigma^2 \sum_{i=0}^{\infty} \beta_i \beta_{i+k}  $$
+$$ \Rightarrow \gamma_X(k) = \sigma^2 \sum_{i=0}^{\infty} \beta_i \beta_i\times -0.5^k \; \; \; \; \; \; \; \; \; \; \; \; \; \; \; \; \; \; \; \; \; since\ \beta_j = -0.5^j, j \in [0, \infty)$$
+$$ \gamma_X(0) = \sigma^2 \left[ 1^2+0.5^2+0.5^4 \dots \right]= \frac{\sigma^2}{1-0.5^2} $$
+$$ \gamma_X(k) = \frac{\sigma^2}{1-0.5^2} \times -0.5^k = \frac{(-0.5)^k\sigma^2}{1-0.5^2}$$
+Now, we can find the spectral density function of $W_t = X_t + Y_t$:
+$$ f_W(\omega) = f_X(\omega)+f_Y(\omega) $$
+$$ \Rightarrow f_W(\omega) = \frac{1}{\pi} \left[\frac{\sigma^2}{1-0.5^2} + \sum_{k=1}^{\infty} \frac{(-0.5)^k\sigma^2}{1-0.5^2} \times cos(k\omega)  \right]+\frac{\sigma^2}{\pi}$$
+
+\section*{Problem 3}
+\subsection*{(a)}
+```{r, echo=TRUE}
+data <- read.table("soi.txt", sep = "\t", header = T)
+soi.ts <- ts(data$annual, start = c(1866), end = c(2010))
+plot(soi.ts, xlab = "Time (Years)", ylab = "Pressure Difference", 
+     main = "Normalized Pressure Difference between Tahiti and Darwin")
+acf(soi.ts, main = "Sample ACF")
+```
+The data shows a large number of fluctuations, and appears quite random from the time series plot. The ACF plot almost resembles that of a white noise.
+
+\subsection{(b)}
+```{r, echo = T}
+spc <- spec.pgram(soi.ts, spans = (sqrt(2*length(soi.ts))))
+dominating_freq <- spc$freq[which.max(spc$spec)]
+dominating_freq
+```
+The smoothed periodogram estimates that there are high densities in the middle frequencies. 
+
+The dominating model frequency is `r dominating_freq`.
+The corresponding angular frequency is `r pi*2*dominating_freq`.
+The corresponding wavelength is `r 1/dominating_freq`.
+
+
+\subsection{(c)}
+```{r, echo = T}
+# Making fourier frequency function
+four_freq <- function(p = -1, example.ts){
+  if(p>floor(length(example.ts)/2) ){
+    stop("P is greater than N/2")
+  }
+  if(!is(example.ts, "ts")){
+    stop("Object is not a time series")
+  }
+  omega_p <- (2*pi*p)/length(example.ts)
+  return(omega_p)
+}
+
+four_freq(10, soi.ts)
+```
+To use the function four_freq, there are 2 arguments that are necessary. The needs to be a time series for which we find the Fourier frequency, and the user needs to input the constant $p$. 
+
+The output of the function at $p=10$ is 0.4333.
+
+\subsection{(d)}
+```{r, echo = T}
+data$row <- seq.int(nrow(data))
+ybar <- mean(data$annual)
+count <- 1
+signif_freq <- data.frame()
+crit <- qf(0.95,2, 142)
+for(i in 1:(length(soi.ts)/2) ){
+  model <- lm(data$annual ~ cos(four_freq(i, soi.ts)*data$row)+sin(four_freq(i, soi.ts)*data$row) )
+  test_stat <- ((1/2)*sum((model$fitted.values-ybar)^2))/((1/142)*sum(model$residuals^2))
+  if(test_stat>crit){
+    signif_freq[count,1] <- i
+    signif_freq[count,2] <- model$coefficients[1]
+    signif_freq[count,3] <- model$coefficients[2]
+    signif_freq[count,4] <- model$coefficients[3]
+    count <- count +1
+  }
+}
+
+colnames(signif_freq)<- c("p", "a_0", "a_p", "b_p")
+signif_freq
+```
+The above dataframe gives all values of $p$ that give significant Fourier frequencies at the 5% CI. The other columns are also the esimates of $a_0$, $a_p$ and $b_p$ for the Fourier Frequency corresponding to the $p$.
+
+\subsection{(e)}
+```{r, echo = T}
+sum(signif_freq$a_0) 
+```
+Using the dataframe, we can find the esimated coefficients of all significant frequencies. The model is given by,
+$$ Y_t =  -0.284 + 0.123 \cos (0.693 t) -0.223 \sin (0.693 t) + 0.214\cos(0.867t) -0.039 \sin(0.867t) $$
+$$ - 0.073\cos(0.997 t) + 0.206\sin(0.997 t) -0.151\cos(1.083 t) + -0.165 \sin(1.083t) $$
+$$ + 0.219\cos(1.777 t) -0.147 \sin(1.776 t) $$
+
+\subsection{(f)}
+```{r, echo = T}
+for(i in 1: length(data$annual)){
+  data$model[i] <- sum(signif_freq$a_0) + signif_freq[1,3]*cos(four_freq(16, soi.ts)*i) + signif_freq[2,3]*cos(four_freq(20, soi.ts)*i) + signif_freq[3,3]*cos(four_freq(23, soi.ts)*i) + signif_freq[4,3]*cos(four_freq(25, soi.ts)*i) + signif_freq[5,3]*cos(four_freq(41, soi.ts)*i) + signif_freq[1,4]*sin(four_freq(16, soi.ts)*i) + signif_freq[2,4]*sin(four_freq(20, soi.ts)*i) + signif_freq[3,4]*sin(four_freq(23, soi.ts)*i) + signif_freq[4,4]*sin(four_freq(25, soi.ts)*i) + signif_freq[5,4]*sin(four_freq(41, soi.ts)*i)
+}
+plot(data$year, data$annual, type = "l", xlab = "Time (In Years)", ylab = "Pressure Difference", main = "Normalized Pressure Difference: Raw Data and Estimated")
+lines(data$year, data$model, col = 2)
+legend("topright", legend = c("Data", "Estimated Model"), lty = c(1,1), col = c(1,2))
+```

@@ -1,0 +1,48 @@
+---
+title: 'STAT 443: Lab 6A'
+author: 'Saksham Sudershan (Student #31339427)'
+date: "28 February 2022"
+output: pdf_document
+---
+### 1.
+
+```{r, echo = TRUE}
+# Reading the data
+data <- read.csv("TempPG.csv")
+
+# Coercing Annual column into a time series
+Annual_TS <- ts(data$Annual)
+
+# Plotting
+plot(Annual_TS)
+acf(Annual_TS, lag.max = 20)
+pacf(Annual_TS, lag.max = 20)
+```
+The ACF of the time series data resembles a damped sine wave, and tails off. The PACF of the time series data spikes at lags $h=1$ and $h=5$. Since its PACF cuts off, and the ACF tails off, an AR process can be fit to the data.
+
+### 2.
+
+```{r, echo = TRUE}
+ARMA_obj1 <- arima(Annual_TS, order = c(1,0,0))
+ARMA_obj2 <- arima(Annual_TS, order = c(5,0,0))
+ARMA_obj1
+ARMA_obj2
+```
+Checking the AIC for an AR model at $p=1$ and $p=5$, we can see that the AR(5) model fits better as it has a lower AIC. So the fitted model is given by:
+$$ X_t - \mu = \alpha_1(X_{t-1} - \mu)+\alpha_2(X_{t-2} - \mu)+\alpha_3(X_{t-3} - \mu)+\alpha_4(X_{t-4} - \mu)+\alpha_5(X_{t-5} - \mu)+Z_t$$
+Where the mean $\mu=-2.0298$.
+$$X_t + 2.0298 = 0.3801(X_{t-1} + 2.0298) + 0.0625(X_{t-2}  + 2.0298) + 0.1074(X_{t-3} + 2.0298)$$
+$$-0.0071(X_{t-4} + 2.0298)+ 0.3207(X_{t-5} + 2.0298) + Z_t$$
+
+### 3.
+
+```{r, echo = TRUE}
+confint(ARMA_obj2)
+```
+
+### 4.
+
+```{r, echo = TRUE}
+tsdiag(ARMA_obj2)
+```
+The Standardized Residuals plot is similar to a plot of white noise, which means that our model fits well. The ACF of residuals also suggests that there are barely any correlations that are not captured by the AR(5) model. Finally, the Ljung-Box test gives us high p-values at most lags, which means that our model while not perfect, does still fit well.
