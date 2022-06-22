@@ -1,0 +1,71 @@
+---
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+\pagenumbering{gobble}
+
+\section*{Problem 5}
+  
+  \subsection*{(a)}
+```{r, echo=T}
+temp_val <- data.frame()
+sn_save <- data.frame()
+for(j in 1:10){
+  for(i in 1:10000){
+    temp_val[i,1] = sum(rnorm((10*j), mean = 0, sd = 1))
+    temp_val[i,2] = abs(temp_val[i,1])
+    }
+  sn_save[j,1] <- (mean(temp_val[,2]))
+}
+row.names(sn_save) <- c("n=10","n=20","n=30","n=40",
+                        "n=50","n=60","n=70","n=80","n=90","n=100")
+colnames(sn_save) <- c("Expected Value of |Sn|")
+sn_save
+```
+  \subsection*{(b)}
+The distribution of $S_n$ is based upon the value of n, where n takes the values $10,20,30 \cdots$
+
+However, since we know that $S_n$ is comprised of i.i.d. $X_is$ which themselves are normally distributed, we can say that $S_n$ is also normally distributed, where $\mu_{S_n}=0$, and so,
+$$ S_n \sim \mathbb{N}(0,n)$$
+Now, the 95% confidence interval for $S_n$ is given by,
+```{r, echo=T}
+for(i in 1:10){
+    print(paste("For n =", i*10,",the 95% is (", round(-1.96*sqrt(i*10), 
+                digits =4),",",round(1.96*sqrt(i*10),digits = 4),")"))
+}
+```
+For the absolute value of $S_n$, the lower bound for the confidence interval will be 0, while the upper bound remains the same, and this will contain 95% of the values. This is because due to the 'folding' or the use of the absolute values, the 95% CI folds in, and the 95% upper bound remains the same while the lower bound becomes 0.
+So, the confidence interval for $|S_n|$ is given by,
+```{r, echo=T}
+for(i in 1:10){
+    print(paste("For n =", i*10,",the 95% is ( 0,",round(1.96*sqrt(i*10),digits = 4),")"))
+}
+```
+
+  \subsection*{(c)}
+  
+We can verify our findings by editing our previous simulation to also record the CI bound values for each $n$.
+
+```{r, echo = TRUE}
+temp_val <- data.frame()
+sn_save <- data.frame()
+for(j in 1:10){
+  for(i in 1:10000){
+    temp_val[i,1] = sum(rnorm((10*j), mean = 0, sd = 1))
+    temp_val[i,2] = abs(temp_val[i,1])
+  }
+  temp_val[,2] <- temp_val[order(temp_val[,2]),2]
+  sn_save[j,1] <- mean(temp_val[,2])
+  sn_save[j,2] <- temp_val[1,2]
+  sn_save[j,3] <- temp_val[9501,2]
+}
+row.names(sn_save) <- c("n=10","n=20","n=30","n=40",
+                        "n=50","n=60","n=70","n=80","n=90","n=100")
+colnames(sn_save) <- c("Expected Value of |Sn|","Lower Bound","Upper Bound")
+sn_save
+```
+
+We find that our bounds found through the simulation are very similar to the theoretical bounds.

@@ -1,0 +1,62 @@
+ARMAacf(ar = c(0.5), lag.max = 5)
+
+
+plot(ARMAacf(ar = c(.16, -.16), lag.max = 10))
+
+plot(arima.sim(n = 100, list(ar = c(0.16, -0.16))))
+
+acf(arima.sim(n = 100000000, list(ar = (0.5)), sd = 1.2), type = "covariance", lag.max = 5, plot = F)
+
+
+#Stat 321 Q4 (c)
+
+decoder_prob <- function( no_of_bits = 8, prob_incorrect = 0.01){
+  decoder_sample <- sample( c(0,1), size = no_of_bits, replace = TRUE, prob= c(prob_incorrect, (1-prob_incorrect)))
+  for(i in 1: no_of_bits ){
+    if(i==1 && decoder_sample[i]==0){
+      if(decoder_sample[i+1]==1){
+        decoder_sample[i] <- 1
+      }
+    }
+    if(i== no_of_bits && decoder_sample[i]==0){
+      if(decoder_sample[i-1]==1){
+        decoder_sample[i] <- 1
+      }
+    }
+    if(decoder_sample[i]==0){
+      if(decoder_sample[i+1]==0 || decoder_sample[i-1]==0){
+        next
+      } else {
+      decoder_sample <- 1
+      }
+    }
+  }
+}
+
+no_of_bits = 8 
+prob_incorrect = 0.01
+decoder_sample <- sample( c(0,1), size = no_of_bits, replace = TRUE, prob= c(prob_incorrect, (1-prob_incorrect)))
+
+for(i in 1: no_of_bits ){
+  if(i==1 && decoder_sample[i]==0){
+    if(decoder_sample[i+1]==1){
+      decoder_sample[i] <- 1
+    }
+  }
+  if(i== no_of_bits && decoder_sample[i]==0){
+    if(decoder_sample[i-1]==1){
+      decoder_sample[i] <- 1
+    }
+  }
+  if(decoder_sample[i]==0){
+    if(decoder_sample[i+1]==0 || decoder_sample[i-1]==0){
+      next
+    } else {
+      decoder_sample <- 1
+    }
+  }
+}
+
+
+decoder_sample <- c(0,0,1,1,0,0,0,0)
+

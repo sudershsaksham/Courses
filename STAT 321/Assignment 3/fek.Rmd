@@ -1,0 +1,29 @@
+---
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\subsection*{(a) and (c)}
+
+```{r, echo = TRUE}
+sim_store <- data.frame()
+values <- data.frame()
+for(j in 1:10){
+  for(i in 1:10000){
+    sim_store[i,1] = sum(rnorm((10*j), mean = 0, sd = 1))
+    sim_store[i,2] = abs(sim_store[i,1])
+  }
+  sim_store[,2] <- sim_store[order(sim_store[,2]),2]
+  values[j,1] <- mean(sim_store[,2])
+  values[j,2] <- sd(sim_store[,2])
+  values[j,3] <- sim_store[250,2]
+  values[j,4] <- sim_store[9750,2]
+}
+
+colnames(values) <- c("Expected Values", "Standard Deviations",
+                      "Lower Bound for 95% CI", "Upper Bound for 95% CI")
+values
+```

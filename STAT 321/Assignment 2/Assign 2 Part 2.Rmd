@@ -1,0 +1,184 @@
+---
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+\pagenumbering{gobble}
+
+\section*{Problem 4}
+
+\subsection*{(a)}
+
+The probability of a bit being decoded erroneously is $p$. Since the occurs independently from bit to bit, we can say that the probability for $j$ bits to be decoded erroneously when $n$ bits are transmitted is given by:
+
+$$ P(j\ bits\ erroneous\ | \, n\ bits\ transmitted) = {n \choose j} \cdot p^{j} \cdot (1-p)^{(n-j)} $$
+\subsection*{(b)}
+
+To calculate the probability that the error-correcting code can correct the errors given $n$-digits are transmitted and $j$ bits are incorrectly decoded, we can find the number of ways codes can be constructed which leads to the error-correcting code not working. Thus,
+
+$$ P(Code\ cannot\ be\ corrected) = \frac{{j \choose 2} \cdot 2! \cdot (n-1)!}{n!}$$
+We choose $2$ out of the $j$ incorrect bits, which can be arranged themselves in $2!$ ways, and arrange the rest $(n-1)$ bits in $(n-1)!$ ways. We divide this by the total number of ways the bits can be arranged, which is $n!$.
+
+Now, the probability that the error-correcting code can correct the errors is given by,
+
+$$ P(Code\ can\ be\ corrected)= 1 - P(Code\ cannot\ be\ corrected)$$
+$$ = 1 - \frac{{j \choose 2} \cdot 2! \cdot (n-1)!}{n!}$$
+
+\subsection*{(c)}
+
+```{r, echo = TRUE}
+
+decoder_prob <- function( no_of_bits = 8, prob_incorrect = 0.01, runs = 1000){
+  count <- c(0)
+  for(i in 1:runs){
+    decoder_sample <- sample( c(0,1), size = no_of_bits, replace = TRUE, 
+                              prob= c(prob_incorrect, (1-prob_incorrect)))
+    flag <- c(0)
+    for(i in 1:(no_of_bits-1)){
+      if(decoder_sample[i]==0 && decoder_sample[i+1]==0){
+       flag = 1
+      }
+    }
+    if(flag==1){
+      count <- count + 1
+    }
+  }
+  (runs-count)/runs
+}
+
+prob_1 <- data.frame()
+for(i in 1:4){
+  for(j in 1:4){
+    if(j==1){
+      prob_1[i,j] <- decoder_prob(i*8, 0.01, 10000)
+    }
+    if(j>1){
+      prob_1[i,j] <- decoder_prob(i*8, (j-1)*0.05, 10000)
+    }
+  }
+}
+row.names(prob_1) <- c("n=8","n=16", "n=24", "n=32")
+colnames(prob_1) <- c("p=0.01", "p=0.05","p=0.10","p=0.15")
+prob_1
+```
+\subsection*{(d)}
+
+```{r, echo = TRUE}
+
+improved_decoder_prob <- function(no_of_bits = 8, prob_incorrect = 0.01, runs = 1000){
+  count <- c(0)
+  for(i in 1:runs){
+    decoder_sample <- sample( c(0,1), size = no_of_bits, replace = TRUE, 
+                              prob= c(prob_incorrect, (1-prob_incorrect)))
+    flag <- c(0)
+    for(i in 1:(no_of_bits-2)){
+      if(decoder_sample[i]==0 && decoder_sample[i+1]==0 && decoder_sample[i+2]==0){
+       flag = 1
+      }
+    }
+    if(flag==1){
+      count <- count + 1
+    }
+  }
+  (runs-count)/runs
+}
+
+prob_2 <- data.frame()
+for(i in 1:4){
+  for(j in 1:4){
+    if(j==1){
+      prob_2[i,j] <- improved_decoder_prob(i*8, 0.01, 10000)
+    }
+    if(j>1){
+      prob_2[i,j] <- improved_decoder_prob(i*8, (j-1)*0.05, 10000)
+    }
+  }
+}
+row.names(prob_2) <- c("n=8","n=16", "n=24", "n=32")
+colnames(prob_2) <- c("p=0.01", "p=0.05","p=0.10","p=0.15")
+prob_2
+
+
+```
+\section*{Problem 5}
+
+\subsection*{(a)}
+
+The ball has a 50-50 chance of going to the left or to the right. Thus, for the ball to go into cell 0, it has to take 5 left turns at each peg encountered. So, 
+
+$$ P(Ball\ goes\ into\ cell\ 0) = .5^5 = 0.03125 $$
+For cell 1, the ball has to take 4 left turns, and 1 right turn. However, the right turn can take place at different pegs. To take into account the different paths that the ball can take, we can use combination.
+
+$$ P(Ball\ goes\ into\ cell\ 1) = {5 \choose 1} (0.5)^4 (0.5)^1 = 5 \cdot (.5)^4 \cdot (.5)^1 = 0.15625$$
+Similarly, we can calculate other probabilities as well:
+
+$$ P(Ball\ goes\ into\ cell\ 2) = {5 \choose 2} (0.5)^3 (0.5)^2 = 0.3125$$
+$$ P(Ball\ goes\ into\ cell\ 3) = {5 \choose 3} (0.5)^2 (0.5)^3 = 0.3125$$
+$$ P(Ball\ goes\ into\ cell\ 4) = {5 \choose 4} (0.5)^1 (0.5)^4 = 0.15625 $$
+$$ P(Ball\ goes\ into\ cell\ 5) = {5 \choose 5} (0.5)^0 (0.5)^5 = 0.03125$$
+\subsection*{(b)}
+
+We can make a function that simulates the Galton Board or quincunx for a given number of runs and number of rows of pegs.
+
+```{r, echo = TRUE}
+galton_sim <- function(no_row_of_pegs = 5, no_runs = 100){
+  cells <- as.data.frame(matrix(0, nrow = (no_row_of_pegs+1), ncol = 1))
+  for(i in 0:(no_row_of_pegs)){
+    row.names(cells)[i+1] <- paste("Cell",i)
+  }
+  
+  for(i in 1:(no_runs)){
+      marble_run <- sample((0:1), size = no_row_of_pegs, replace = TRUE)
+      cells[(sum(marble_run)+1), 1] <- cells[(sum(marble_run)+1), 1] + 1
+  }
+  colnames(cells) <- paste("Number of Balls")
+  cells
+}  
+```
+
+We can use this function to simulate a quincunx with 5 rows of pegs, and drop a ball 1000 times, recording the values.
+
+```{r, echo=TRUE}
+sim_1 <- galton_sim(5, 1000)
+```
+
+To compare with theoretical values, we can make another row which shows theoretical values and another with expected values for a 1000 runs. We can see that the frequencies calculated through running the experiment quite closely resemble the expected number of balls given by theoretical probabilites. 
+
+```{r, echo = TRUE}
+for (i in 1:6) {
+  sim_1[i, 2] <- choose(5,(i-1))*((0.5)^(i))*((0.5)^(5-i))
+  sim_1[i, 3] <- (sim_1[i,2])*1000
+}
+colnames(sim_1) <- c("Number of Balls","Theoretical Probabilities",
+                     "Expected Number of Balls")
+sim_1
+```
+\subsection*{(c)}
+
+
+For each cell, we can generalize the probability given the number of rows of pegs is 100, and there is a 50-50 chance of the ball going left or right. For a given cell $k-1$, where $k \in \textit{N}$ is given by:
+
+$$ P(Ball\ Goes\ Into\ Cell\ k-1) = {100 \choose k} (0.5)^k (0.5)^{(100-k)} $$
+\subsection*{(d)}
+
+We can use the same function again with the number of rows set as 100, and do a 1000 runs on this, recording the values.
+
+```{r, echo = TRUE}
+sim_2 <- galton_sim(100, 1000)
+```
+
+To compare easily with theoretical values, we can make another row which shows theoretical values and another with expected values for a 1000 runs. We can see again that the actual frequencies obtained through the experiment closely resemble the theoretical values or the expected number of balls in each cell.
+
+```{r, echo = TRUE}
+for (i in 1:101) {
+  sim_2[i, 2] <- round(choose(100,(i-1))*((0.5)^(i))*((0.5)^(100-i)), digits = 5)
+  sim_2[i, 3] <- round((sim_2[i,2])*1000, digits = 2)
+}
+colnames(sim_2) <- c("Number of Balls","Theoretical Probabilities",
+                     "Expected Number of Balls")
+sim_2
+```
+

@@ -1,0 +1,75 @@
+---
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+\pagenumbering{gobble}
+\section*{Problem 5}
+
+\subsection*{(a)}
+
+For a Monte Carlo Approximation, we can simulate a sample of 20 8-sided die and counting the number of times we get \emph{i} rolls greater than or equal to 6 and \emph{j} rolls greater than or equal to 4. By counting these we can estimate the probability.
+
+```{r eval=FALSE, include=T}
+# Run number of simulations to estimate probability
+  number_sim <- 10000
+  
+  # Add conditions to satisfy calculating probability for events
+  condition_1 = condition_2 <- c(0)
+  
+  # Simulating n= number_sim rolls
+  for(k in 1:number_sim){
+    sample_rolls <- sample(1:8, size = 20, replace = TRUE)
+    
+    # Counting the number of dice rolls greater than or equal to 6 in the sample
+    i_check <- sum(sample_rolls[]>=6)
+    # Counting the number of dice rolls greater than or equal to 4 in the sample
+    j_check <- sum(sample_rolls[]>=4)
+    
+    # Counting the samples which satisfy conditions 1, that is there are at least i rolls greater than 6
+    if(i_check >= i){
+      condition_1 = condition_1 + 1
+    }
+    # Counting the samples which satisfy conditions 1, that is there are at least j rolls greater than 4
+    if(j_check >= j){
+      condition_2 = condition_2 + 1
+    }
+  }
+  # Estimating conditional probability
+  prob <- condition_1/condition_2
+```
+
+\subsection{(b) and (c)}
+
+We can create a function with inputs i and j to output the probabilities for the given i and j. Then we can run a loop to create a matrix for the probabilities for each i= [12,14] and j=[8,12].
+```{r, echo=T}
+sim_dice <- function(i,j){
+  number_sim <- 10000
+  condition_1 = condition_2 <- c(0)
+  for(k in 1:number_sim){
+    sample_rolls <- sample(1:8, size = 20, replace = TRUE)
+    if(sum(sample_rolls[]>=6) >= i){
+      condition_1 = condition_1 + 1
+    }
+    if(sum(sample_rolls[]>=4) >= j){
+      condition_2 = condition_2 + 1
+    }
+  }
+  prob <- condition_1/condition_2
+  
+  return(prob)
+}
+
+output <- data.frame(row.names = c("j=8","j=9","j=10","j=11","j=12"))
+for(m in 1:3){
+  for(o in 1:5){
+    output[o,m] <- sim_dice(m+11,o+7)
+  }
+}
+colnames(output) <- c("i=12","i=13","i=14")
+
+output
+```
+The above are the estimated probabilities for every combination of \emph{i}s and \emph{j}s.

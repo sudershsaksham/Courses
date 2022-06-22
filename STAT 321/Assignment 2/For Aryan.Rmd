@@ -1,0 +1,216 @@
+---
+title: "Appendix"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\section*{Problem 4 Part (c)}
+
+```{r, echo = TRUE}
+prob <- data.frame()
+for(i in 1:4){
+  for(j in 1:4){
+    if(j==1){
+        n <- i*8
+        counter <- c(0)
+        for(k in 1:10000){
+          code <- sample( c(0,1), size = n, replace = TRUE, prob= c(0.01, (1-0.01)))
+          error <- c(0)
+          for(l in 1:(n-1)){
+            if(code[l]==0 && code[l+1]==0){
+            error = error + 1
+            }
+          }
+          if(error>0){
+            counter <- counter + 1
+          }
+        }
+        prob[i,j] <- (10000-counter)/10000
+    }
+    if(j==2){
+        n <- i*8
+        counter <- c(0)
+        for(k in 1:10000){
+          code <- sample( c(0,1), size = n, replace = TRUE, prob= c(0.05, (1-0.05)))
+          error <- c(0)
+          for(l in 1:(n-1)){
+            if(code[l]==0 && code[l+1]==0){
+            error = error + 1
+            }
+          }
+          if(error>0){
+            counter <- counter + 1
+          }
+        }
+        prob[i,j] <- (10000-counter)/10000
+    }
+    if(j==3){
+        n <- i*8
+        counter <- c(0)
+        for(k in 1:10000){
+          code <- sample( c(0,1), size = n, replace = TRUE, prob= c(0.1, (1-0.1)))
+          error <- c(0)
+          for(l in 1:(n-1)){
+            if(code[l]==0 && code[l+1]==0){
+            error = error + 1
+            }
+          }
+          if(error>0){
+            counter <- counter + 1
+          }
+        }
+        prob[i,j] <- (10000-counter)/10000
+      
+    }
+    if(j==4){
+        n <- i*8
+        counter <- c(0)
+        for(k in 1:10000){
+          code <- sample( c(0,1), size = n, replace = TRUE, prob= c(0.15, (1-0.15)))
+          error <- c(0)
+          for(l in 1:(n-1)){
+            if(code[l]==0 && code[l+1]==0){
+            error = error + 1
+            }
+          }
+          if(error>0){
+            counter <- counter + 1
+          }
+        }
+        prob[i,j] <- (10000-counter)/10000
+      
+    }
+  }
+}
+row.names(prob) <- c("n = 8","n = 16", "n = 24", "n = 32")
+colnames(prob) <- c("p = 0.01", "p = 0.05","p =0.10","p = 0.15")
+prob
+```
+\section*{Problem 4 Part (d)}
+
+```{r, echo = TRUE}
+prob <- data.frame()
+for(i in 1:4){
+  for(j in 1:4){
+    if(j==1){
+        n <- i*8
+        counter <- c(0)
+        for(k in 1:10000){
+          code <- sample( c(0,1), size = n, replace = TRUE, prob= c(0.01, (1-0.01)))
+          error <- c(0)
+          for(l in 1:(n-2)){
+            if(code[l]==0 && code[l+1]==0 && code[l+2]==0){
+            error = error + 1
+            }
+          }
+          if(error>0){
+            counter <- counter + 1
+          }
+        }
+        prob[i,j] <- (10000-counter)/10000
+    }
+    if(j==2){
+        n <- i*8
+        counter <- c(0)
+        for(k in 1:10000){
+          code <- sample( c(0,1), size = n, replace = TRUE, prob= c(0.05, (1-0.05)))
+          error <- c(0)
+          for(l in 1:(n-2)){
+            if(code[l]==0 && code[l+1]==0 && code[l+2]==0){
+            error = error + 1
+            }
+          }
+          if(error>0){
+            counter <- counter + 1
+          }
+        }
+        prob[i,j] <- (10000-counter)/10000
+    }
+    if(j==3){
+        n <- i*8
+        counter <- c(0)
+        for(k in 1:10000){
+          code <- sample( c(0,1), size = n, replace = TRUE, prob= c(0.1, (1-0.1)))
+          error <- c(0)
+          for(l in 1:(n-2)){
+            if(code[l]==0 && code[l+1]==0 && code[l+2]==0){
+            error = error + 1
+            }
+          }
+          if(error>0){
+            counter <- counter + 1
+          }
+        }
+        prob[i,j] <- (10000-counter)/10000
+      
+    }
+    if(j==4){
+        n <- i*8
+        counter <- c(0)
+        for(k in 1:10000){
+          code <- sample( c(0,1), size = n, replace = TRUE, prob= c(0.15, (1-0.15)))
+          error <- c(0)
+          for(l in 1:(n-2)){
+            if(code[l]==0 && code[l+1]==0 && code[l+2]==0){
+            error = error + 1
+            }
+          }
+          if(error>0){
+            counter <- counter + 1
+          }
+        }
+        prob[i,j] <- (10000-counter)/10000
+      
+    }
+  }
+}
+row.names(prob) <- c("n = 8","n = 16", "n = 24", "n = 32")
+colnames(prob) <- c("p = 0.01", "p = 0.05","p =0.10","p = 0.15")
+prob
+```
+\section*{Problem 5 (b)}
+
+```{r, echo = TRUE}
+for(i in 1:6){
+  prob <- as.data.frame(matrix(0, nrow = (5+1), ncol = 1))
+  for(j in 0:5){
+    row.names(prob)[j+1] <- paste("Cell",j)
+  }
+  for(j in 1:1000){
+      path <- sample((0:1), size = 5, replace = TRUE)
+      prob[(sum(path)+1), 1] <- prob[(sum(path)+1), 1] + 1
+  }
+  colnames(prob) <- paste("Number of Balls")
+  prob[i, 2] <- choose(5,(i-1))*((0.5)^(i))*((0.5)^(5-i))
+}
+for (i in 1:6) {
+  prob[i, 2] <- choose(5,(i-1))*((0.5)^(i))*((0.5)^(5-i))
+}
+colnames(prob) <- c("Number of Balls","Theoretical Probabilities")
+prob
+```
+
+\section*{Problem 5 (d)}
+
+```{r, echo = TRUE}
+for(i in 1:6){
+  prob <- as.data.frame(matrix(0, nrow = (100+1), ncol = 1))
+  for(j in 0:100){
+    row.names(prob)[j+1] <- paste("Cell",j)
+  }
+  for(j in 1:1000){
+      path <- sample((0:1), size = 100, replace = TRUE)
+      prob[(sum(path)+1), 1] <- prob[(sum(path)+1), 1] + 1
+  }
+  colnames(prob) <- paste("Number of Balls")
+  prob[i, 2] <- choose(5,(i-1))*((0.5)^(i))*((0.5)^(5-i))
+}
+for (i in 1:101) {
+  prob[i, 2] <- round(choose(100,(i-1))*((0.5)^(i))*((0.5)^(100-i)), digits = 4)
+}
+colnames(prob) <- c("Number of Balls","Theoretical Probabilities")
+prob
+```
